@@ -6,7 +6,7 @@ My homelab consist of two servers running Proxmox VE :
 - a Dell R620 (2x E5-2680v2 12 cores, 192GB, 4x 600GB) 
 - a Dell R630 (2x E5-2698v4 20 cores, 192G B, 8x 600 GB)
 
-I'm constantly deploying new Kubernetes flavors, just to be able to study them, but each deployment takes time (OpenShift ! I'm looking at you). And I don't want both my hypervisors to be running every day, 24x7, so I need a way to deploy my environments automatically, along with the deployment of the Kubernetes workload. The second part is fairly easy if the kubeconfig points to the right cluster, a nice `kubectl apply -f` and presto, the workload is installed. 
+I'm constantly deploying new Kubernetes flavors, just to be able to study them, but each deployment takes time (OpenShift ! I'm looking at you). And I don't want both my hypervisors to be running every day, 24x7, so I need a way to deploy my environments automatically, along with the deployment of the Kubernetes workload. The second part is fairly easy if the kubeconfig points to the right cluster, a nice `kubectl apply -f` and presto, the workload is installed.  Use a vault when going to prod ! Never let your password in clear text in prod ! Do I have to tell you everything ??? 
 
 But what about the cluster config ?
 

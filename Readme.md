@@ -14,7 +14,9 @@ Enter Terraform.  And enter Ansible. And enter Jenkins (ok, ok, that's a lot ent
 
 Enter Infrastructure as Code !
 
-The way it works (until now, without Jenkins) : 
+This is what I will deploy (based on Techno Tim setup in [this video](https://www.youtube.com/watch?v=UoOcLXfa8EU) : 
+
+![architecture](./k3s-architecture.png)
 
 1. Terraform deploys 8 nodes : 6 for the K3s cluster, one Mysql server (I'm running K3s in HA mode, with external DB), and a proxy. 
 2. A bunch of playbooks deploy the services : one for setting up mysql, one for setting up nginx in ha proxy mode, one to deploy the master nodes, and one to deploy the worker nodes. 

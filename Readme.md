@@ -1,5 +1,5 @@
-# Why Proxmox VE ?
-
+# Why Proxmox VE ? 
+ 
 Because I can. It's easy to install. It's easy to maintain. It's easy to operate. It's opensource. 'nuff said ... 
 
 My homelab consist of two servers running Proxmox VE :

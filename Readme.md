@@ -39,12 +39,11 @@ Each VM is configured with a private Mac address (1st byte : 1st biff off, 2nd b
 
 I'm cloning an existing template (Ubuntu 20.04), where I have a user (ansiblebot) with proper sudo privileges. This is the user that Ansible will use for the ```become``` commands. I haven't done it yet, but I'm planning on removing the sudo privileges for the ansiblebot user as a post install task.
 
-Also installed docker on the box, along with additional tools I use from time to time. I could use two templates, one for the general purpose servers, and one for the cluste. Oh well, that'll do for now. 
+Also installed docker on the box, along with additional tools I use from time to time. I could use two templates, one for the general purpose servers, and one for the cluster. Oh well, that'll do for now. 
 
 I'm cloning this box 8 times, which takes about 1m30s on my R630 (linked clones, not full ones). The name of the template is defined in the terraform variables file. 
 
-
-BTW, I've tried to make the mysql and nginx as LXC containers, but the Telmate terraform provider offers less features (due to the Proxmox API ? dunno... ), so I've decided to make them low power hosts. 
+BTW, I've tried to make the k3s-mysql and k3s-nginx hosts as LXC containers, but the Telmate terraform provider offers less features for an Ansible-friendly installation (due to the Proxmox API ? dunno... ), so I've decided to make them low power hosts. 
 
 ## Commands
 The commands are fairly simple :

@@ -22,6 +22,19 @@ This is what I will deploy (based on Techno Tim setup in [this video](https://ww
 1. Terraform deploys 8 nodes : 6 for the K3s cluster, one Mysql server (I'm running K3s in HA mode, with external DB), and a proxy. 
 2. A bunch of playbooks deploy the services : one for setting up mysql, one for setting up nginx in ha proxy mode, one to deploy the master nodes, and one to deploy the worker nodes. 
 
+| Name | Mac address | IP address | Role |
+|------|-------------|------------|------|
+| k3s-ctrl-1 | 7A:00:00:00:01:01 | 192.168.1.150 | Control plane #1 |
+| k3s-ctrl-2 | 7A:00:00:00:01:02 | 192.168.1.151 | Control plane #2 |
+| k3s-ctrl-3 | 7A:00:00:00:01:03 | 192.168.1.152 | Control plane #3 |
+| k3s-cmp-1 | 7A:00:00:00:01:04 | 192.168.1.153 | Worker #1 |
+| k3s-cmp-2 | 7A:00:00:00:01:05 | 192.168.1.154 | Worker #2 |
+| k3s-cmp-3 | 7A:00:00:00:01:06 | 192.168.1.155 | Worker #3 |
+| k3s-mysql | 7A:00:00:00:01:07 | 192.168.1.156 | External DB |
+| k3s-nginx | 7A:00:00:00:01:08 | 192.168.1.157 | Load balancer |
+
+Each VM is configured with a private Mac address (1st byte : 1st biff off, 2nd bit on). These Mac addresses are reserved on my DHCP server to provide the IP addresses you'll see in the file ```ìnventory/hosts.ini```.
+
 ## Template preparation
 
 I'm cloning an existing template (Ubuntu 20.04), where I have a user (ansiblebot) with proper sudo privileges. This is the user that Ansible will use for the ```become``` commands. I haven't done it yet, but I'm planning on removing the sudo privileges for the ansiblebot user as a post install task.
@@ -30,7 +43,6 @@ Also installed docker on the box, along with additional tools I use from time to
 
 I'm cloning this box 8 times, which takes about 1m30s on my R630 (linked clones, not full ones). The name of the template is defined in the terraform variables file. 
 
-Each VM is configured with a private Mac address (1st byte : 1st biff off, 2nd bit on). These Mac addresses are reserved on my DHCP server to provide the IP addresses you'll see in the file ```ìnventory/hosts.ini```.
 
 BTW, I've tried to make the mysql and nginx as LXC containers, but the Telmate terraform provider offers less features (due to the Proxmox API ? dunno... ), so I've decided to make them low power hosts. 
 

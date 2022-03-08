@@ -22,7 +22,13 @@ This is what I will deploy (based on Techno Tim setup in [this video](https://ww
 1. Terraform deploys 8 nodes : 6 for the K3s cluster, one Mysql server (I'm running K3s in HA mode, with external DB), and a proxy. 
 2. A bunch of playbooks deploy the services : one for setting up mysql, one for setting up nginx in ha proxy mode, one to deploy the master nodes, and one to deploy the worker nodes. 
 
-I'm cloning an existing template (Ubuntu 20.04), where I have a user (ansiblebot) with proper sudo privileges. This is the user that Ansible will use for the ```become``` commands. 
+## Template preparation
+
+I'm cloning an existing template (Ubuntu 20.04), where I have a user (ansiblebot) with proper sudo privileges. This is the user that Ansible will use for the ```become``` commands. I haven't done it yet, but I'm planning on removing the sudo privileges for the ansiblebot user as a post install task.
+
+I'm cloning this box 8 times, which takes about 1m30s on my R630 (linked clones, not full ones). The name of the template is defined in the terraform variables file. 
+
+Each VM is configured with a private Mac address (1st byte : 1st biff off, 2nd bit on). These Mac addresses are reserved on my DHCP server to provide the IP addresses you'll see in the file ```ìnventory/hosts.ini```.
 
 ## Commands
 The commands are fairly simple :

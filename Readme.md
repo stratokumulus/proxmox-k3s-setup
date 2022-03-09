@@ -1,26 +1,25 @@
 # Why Proxmox VE ? 
- 
-Because I can. It's easy to install. It's easy to maintain. It's easy to operate. It's opensource. 'nuff said ... 
 
-My homelab consist of two servers running Proxmox VE :
-- a Dell R620 (2x E5-2680v2 12 cores, 192GB, 4x 600GB) 
-- a Dell R630 (2x E5-2698v4 20 cores, 192G B, 8x 600 GB)
+Because I can. It's easy to install. It's easy to maintain. It's easy to operate. It's opensource. It forms clusters. So yeah, why not ?
 
-I'm constantly deploying new Kubernetes flavors, just to be able to study them, but each deployment takes time (OpenShift ! I'm looking at you). And I don't want both my hypervisors to be running every day, 24x7, so I need a way to deploy my environments automatically, along with the deployment of the Kubernetes workload. The second part is fairly easy if the kubeconfig points to the right cluster, a nice `kubectl apply -f` and presto, the workload is installed.
+My homelab consist of two Dell R6x0 servers running Proxmox VE (with 192GB RAM each, and plenty of disk space)
 
-But what about the cluster config ?
+I'm constantly testing new Kubernetes flavors, just to be able to study them, search for some specific feature, ...  but each manual deployment takes time (OpenShift ! I'm looking at you). And I don't want both my hypervisors to be running every day, 24x7, so I need a way to deploy my environments automatically, quickly, along with the deployment of the Kubernetes workload. The second part is fairly easy if the kubeconfig points to the right cluster: a nice `kubectl apply -f` and presto, the workload is installed.
+
+But what about the cluster deployment ?
 
 Enter Terraform.  And enter Ansible. And enter Jenkins (ok, ok, that's a lot entering at once ... let's summarize :)
 
 Enter Infrastructure as Code !
 
 ## Architecture
+
 This is what I will deploy (based on Techno Tim setup in [this video](https://www.youtube.com/watch?v=UoOcLXfa8EU) , which is itself based on the [Rancher K3S HA installation doc](https://rancher.com/docs/k3s/latest/en/installation/ha/) ) : 
 
 ![architecture](./k3s-architecture.png)
 
-1. Terraform deploys 8 nodes : 6 for the K3s cluster, one Mysql server (I'm running K3s in HA mode, with external DB), and a proxy. 
-2. A bunch of playbooks deploy the services : one for setting up mysql, one for setting up nginx in ha proxy mode, one to deploy the master nodes, and one to deploy the worker nodes. 
+1. My Terraform code deploys 8 nodes : 6 for the K3s cluster, one for a mysql server, and one for a proxy (I'm running K3s in HA mode, with external DB, so check the Rancher doc for exact architecture details). 
+2. A bunch of playbooks deploy the services : one for setting up mysql, one for setting up nginx in ha proxy mode, one to deploy the control plane nodes (and download the kubeconfig) , and finally one to deploy the worker nodes. 
 
 | Name | Mac address | IP address | Role |
 |------|-------------|------------|------|
@@ -33,7 +32,7 @@ This is what I will deploy (based on Techno Tim setup in [this video](https://ww
 | k3s-mysql | 7A:00:00:00:01:07 | 192.168.1.156 | External DB |
 | k3s-nginx | 7A:00:00:00:01:08 | 192.168.1.157 | Load balancer |
 
-Each VM is configured with a private Mac address (1st byte : 1st biff off, 2nd bit on). These Mac addresses are reserved on my DHCP server to provide the IP addresses you'll see in the file ```ìnventory/hosts.ini```.
+Each VM is configured with a private Mac address (1st byte : 1st bit (or LSB) : off, 2nd bit : on), I do this to easily sort lab VMs belonging to specifig tests (f.i., my OpenShift lab has addresses in the 7A:..:**02**:xx range). These Mac addresses are then reserved on my DHCP server to provide the lab IP addresses (they're in the file ```ìnventory/hosts.ini```). 
 
 ## Template preparation
 
@@ -61,11 +60,30 @@ I'm running terraform in auto-approve mode, which is fine in a home lab, but not
 
 And don't get me started on the fact that the db password is in clear in one of the file : yes, I KNOW. It's a lab. This setup is torn down and restarted on a daily basis, sometimes with a random password generated. Use a vault when going to prod ! Never let your password in clear text in prod ! Do I have to tell you everything ???
 
+## Todo
+
+- [ ] use dynamically assigned IP addresses. Static IPs are for the lazy (plus, it won't work for a cloud deployment)
+- [ ] remove sudo privileges to ansiblebot user once provisioning is done
+- [ ] go get a coffee. There's never enough coffee on any given day
+- [ ] make deployment accross multiple proxmox hosts - should be easy, the target_host could be part of the VM var definition ?
+- [ ] convert to a cloud deployment
+- [ ] add Rancher as the UI ... not really tempted as I prefer CLI
+- [ ] improve the Ansible code. I'm not using variables the Ansible way. Shame on me ...
+
 ## Troubleshooting
-If needed, test the DB access from one of the control-plane nodes : 
+
+The DB must be properly configured and avaiable from the control plane nodes. If it's not, then you'll get an error in ```systemctl status k3s``` complaining about connection to the mysql box closed/rejected/... So test the DB access from one of the control-plane nodes : 
+
+First to the mysql server :
 ```
-mysql -u k3s  -h 192.168.1.65 --port=33306 -p -D k3s
+mysql -u k3s  -h 192.168.1.156  -p -D k3s
+```
+Then to the HA Proxy :
+```
+mysql -u k3s  -h 192.168.1.157 --port=33306 -p -D k3s
 ```
 
-If for some reason the deployment of the control nodes failed, connect to them and run ```/usr/local/bin/k3s-uninstall.sh```, fix the issue and restart the control plane playbook. 
+Ports, names, and IPs are the ones configured in my project, adapt these commands to your own config. 
+
+If for some reason the deployment of the control nodes failed, connect to each one of them and run ```/usr/local/bin/k3s-uninstall.sh```, find the root cause of the failure, fix it, and just restart the control plane playbook, followed by the worker node playbook.
 

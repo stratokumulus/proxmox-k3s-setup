@@ -62,6 +62,7 @@ And don't get me started on the fact that the db password is in clear in one of 
 
 ## Todo
 
+- [ ] A Jenkins pipeline
 - [ ] use dynamically assigned IP addresses. Static IPs are for the lazy (plus, it won't work for a cloud deployment)
 - [ ] remove sudo privileges to ansiblebot user once provisioning is done
 - [ ] go get a coffee. There's never enough coffee on any given day

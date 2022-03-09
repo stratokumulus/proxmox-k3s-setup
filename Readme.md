@@ -2,7 +2,7 @@
 
 Because I can. It's easy to install. It's easy to maintain. It's easy to operate. It's opensource. It forms clusters. So yeah, why not ?
 
-My homelab consist of two Dell R6x0 servers running Proxmox VE (with 192GB RAM each, and plenty of disk space)
+My homelab consist of two Dell R6x0 servers running Proxmox VE 7 (with 192GB RAM each, and plenty of disk space). I have a user with proper rights (```terraform-prov```) that I use to automate VM creation. 
 
 I'm constantly testing new Kubernetes flavors, just to be able to study them, search for some specific feature, ...  but each manual deployment takes time (OpenShift ! I'm looking at you). And I don't want both my hypervisors to be running every day, 24x7, so I need a way to deploy my environments automatically, quickly, along with the deployment of the Kubernetes workload. The second part is fairly easy if the kubeconfig points to the right cluster: a nice `kubectl apply -f` and presto, the workload is installed.
 

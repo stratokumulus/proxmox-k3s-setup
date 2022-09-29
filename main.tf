@@ -1,25 +1,9 @@
 terraform {
   required_providers {
     proxmox = {
-      source = "Telmate/proxmox"
+      source  = "Telmate/proxmox"
+      version = "~> 2.9.10"
     }
-  }
-}
-
-locals {
-  vm_settings = {
-    "k3s-ctrl-1" = { macaddr = "7A:00:00:00:01:01", cores = 4, ram = 8192, vmid = 901 },
-    "k3s-ctrl-2" = { macaddr = "7A:00:00:00:01:02", cores = 4, ram = 8192, vmid = 902 },
-    "k3s-ctrl-3" = { macaddr = "7A:00:00:00:01:03", cores = 4, ram = 8192, vmid = 903 },
-    "k3s-cmp-1"  = { macaddr = "7A:00:00:00:01:04", cores = 4, ram = 8192, vmid = 904 },
-    "k3s-cmp-2"  = { macaddr = "7A:00:00:00:01:05", cores = 4, ram = 8192, vmid = 905 },
-    "k3s-cmp-3"  = { macaddr = "7A:00:00:00:01:06", cores = 4, ram = 8192, vmid = 906 },
-    "k3s-mysql"  = { macaddr = "7a:00:00:00:01:07", cores = 1, ram = 4096, vmid = 907 },
-    "k3s-nginx"  = { macaddr = "7a:00:00:00:01:08", cores = 1, ram = 4096, vmid = 908 }
-  }
-  bridge = "vmbr0"
-  lxc_settings = {
-
   }
 }
 
@@ -32,20 +16,34 @@ provider "proxmox" {
   #pm_debug = true
 }
 
-/* Configure cloud-init User-Data with custom config file */
-resource "proxmox_vm_qemu" "cloudinit_nodes" {
-  for_each    = local.vm_settings
-  name        = each.key
-  vmid        = each.value.vmid
+provider "helm" {
+  kubernetes {
+    config_path = "./files/kubeconfig-k3s"
+  }
+}
+
+# Can we reuse the one from above ?
+provider "kubernetes" {
+  config_path = "./files/kubeconfig-k3s"
+}
+
+resource "proxmox_vm_qemu" "master" {
+  count       = var.master_count
+  name        = "${var.master_prefix}-${count.index}"
+  desc        = "Master node"
   target_node = var.target_host
   clone       = var.template_name
-  full_clone  = false
+  pool        = var.pool
+  full_clone  = true
   boot        = "cdn" # "c" by default, which renders the coreos35 clone non-bootable. "cdn" is HD, DVD and Network
   oncreate    = true  # start once created
-  agent       = 0
+  onboot      = true  # start the node automatically when Proxmox starts 
+  agent       = 1
 
-  cores    = each.value.cores
-  memory   = each.value.ram
+  vmid = 901 + count.index
+
+  cores    = var.master_cores
+  memory   = var.master_ram
   scsihw   = "virtio-scsi-pci"
   bootdisk = "scsi0"
   hotplug  = 0
@@ -59,7 +57,150 @@ resource "proxmox_vm_qemu" "cloudinit_nodes" {
   }
   network {
     model   = "virtio"
-    bridge  = local.bridge
-    macaddr = each.value.macaddr
+    bridge  = var.network_bridge
+    macaddr = var.mastermac[count.index]
+  }
+
+  tags = count.index
+}
+
+/* Configure cloud-init User-Data with custom config file */
+resource "proxmox_vm_qemu" "compute" {
+  count       = var.compute_count
+  name        = "${var.compute_prefix}-${count.index}"
+  desc        = "Worker node"
+  target_node = var.target_host
+  clone       = var.template_name
+  pool        = var.pool
+  full_clone  = true
+  boot        = "cdn" # "c" by default, which renders the coreos35 clone non-bootable. "cdn" is HD, DVD and Network
+  oncreate    = true  # start once created
+  onboot      = true  # start the node automatically when Proxmox starts 
+  agent       = 1
+
+  vmid     = 904 + count.index
+  cores    = var.compute_cores
+  memory   = var.compute_ram
+  scsihw   = "virtio-scsi-pci"
+  bootdisk = "scsi0"
+  hotplug  = 0
+
+  disk {
+    slot    = 0
+    size    = "16G"
+    type    = "scsi"
+    storage = var.storage_name
+    #iothread = 1
+  }
+  network {
+    model   = "virtio"
+    bridge  = var.network_bridge
+    macaddr = var.workermac[count.index]
+
+  }
+  tags = count.index
+
+}
+
+/* Configure cloud-init User-Data with custom config file */
+resource "proxmox_vm_qemu" "storage" {
+  count       = var.storage_count
+  name        = "${var.storage_prefix}-${count.index}"
+  desc        = "Longhorn storage node"
+  target_node = var.target_host
+  clone       = var.template_name
+  pool        = var.pool
+  full_clone  = true
+  boot        = "cdn" # "c" by default, which renders the coreos35 clone non-bootable. "cdn" is HD, DVD and Network
+  oncreate    = true  # start once created
+  onboot      = true  # start the node automatically when Proxmox starts 
+  agent       = 1
+
+  vmid     = 909 + count.index
+  cores    = var.storage_cores
+  memory   = var.storage_ram
+  scsihw   = "virtio-scsi-pci"
+  bootdisk = "scsi0"
+  hotplug  = 0
+
+  disk {
+    slot    = 0
+    size    = "200G"
+    type    = "scsi"
+    storage = var.storage_name
+    #iothread = 1
+  }
+  network {
+    model   = "virtio"
+    bridge  = var.network_bridge
+    macaddr = var.storagemac[count.index]
+
+  }
+  tags = count.index
+
+}
+
+resource "proxmox_vm_qemu" "haproxy" {
+  name        = var.haproxy_prefix
+  desc        = "HA Proxy"
+  target_node = var.target_host
+  clone       = var.template_name
+  pool        = var.pool
+  full_clone  = true
+  boot        = "cdn" # "c" by default, which renders the coreos35 clone non-bootable. "cdn" is HD, DVD and Network
+  oncreate    = true  # start once created
+  onboot      = true  # start the node automatically when Proxmox starts 
+  agent       = 1
+  vmid        = var.haproxyvmid
+
+  cores    = 1
+  memory   = 4096
+  scsihw   = "virtio-scsi-pci"
+  bootdisk = "scsi0"
+  hotplug  = 0
+
+  disk {
+    slot    = 0
+    size    = "16G"
+    type    = "scsi"
+    storage = var.storage_name
+    #iothread = 1
+  }
+  network {
+    model   = "virtio"
+    bridge  = var.network_bridge
+    macaddr = var.haproxymac
+  }
+}
+resource "proxmox_vm_qemu" "mysql" {
+  name        = var.mysql_prefix
+  desc        = "MySQL"
+  target_node = var.target_host
+  clone       = var.template_name
+  pool        = var.pool
+  full_clone  = true
+  boot        = "cdn" # "c" by default, which renders the coreos35 clone non-bootable. "cdn" is HD, DVD and Network
+  oncreate    = true  # start once created
+  onboot      = true  # start the node automatically when Proxmox starts
+  agent       = 1
+  vmid        = var.mysqlvmid
+
+  cores    = 1
+  memory   = 4096
+  scsihw   = "virtio-scsi-pci"
+  bootdisk = "scsi0"
+  hotplug  = 0
+
+  disk {
+    slot    = 0
+    size    = "16G"
+    type    = "scsi"
+    storage = var.storage_name
+    #iothread = 1
+  }
+  network {
+    model   = "virtio"
+    bridge  = var.network_bridge
+    macaddr = var.mysqlmac
   }
 }

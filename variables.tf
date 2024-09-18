@@ -27,7 +27,7 @@ variable "storage_name" {
   description = "Storage name on Proxmox server"
   default     = "vm-data"
 }
-variable "template_name" {terr
+variable "template_name" {
   description = "Name of the template to clone"
   default     = "u-cloudimg"
 }

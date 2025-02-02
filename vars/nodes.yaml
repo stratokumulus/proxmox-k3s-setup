@@ -6,8 +6,8 @@ nodes:
     macaddr: 7A:00:00:00:01:20
     cores: 4
     ram: 8192
-    vmid: 3000
-    os: ubuntu20-ansible
+    vmid: 200
+    os: u24-cloud
     boot: started
   database:
     name: k3s-mysql
@@ -16,8 +16,8 @@ nodes:
     macaddr: 7A:00:00:00:01:30
     cores: 4
     ram: 8192
-    vmid: 3001
-    os: ubuntu20-ansible
+    vmid: 201
+    os: u24-cloud
     boot: started
   master0:
     name: k3s-ctrl-0
@@ -26,8 +26,8 @@ nodes:
     macaddr: 7A:00:00:00:01:00
     cores: 4
     ram: 16384
-    vmid: 3100
-    os: ubuntu20-ansible
+    vmid: 210
+    os: u24-cloud
     boot: started
   master1:
     name: k3s-ctrl-1
@@ -36,8 +36,8 @@ nodes:
     macaddr: 7A:00:00:00:01:01
     cores: 4
     ram: 16384
-    vmid: 3101
-    os: ubuntu20-ansible
+    vmid: 211
+    os: u24-cloud
     boot: started
   master2:
     name: k3s-ctrl-2
@@ -46,8 +46,8 @@ nodes:
     macaddr: 7A:00:00:00:01:02
     cores: 4
     ram: 16384
-    vmid: 3102
-    os: ubuntu20-ansible
+    vmid: 212
+    os: u24-cloud
     boot: started
   worker0:
     name: k3s-worker-0
@@ -56,8 +56,8 @@ nodes:
     macaddr: 7A:00:00:00:01:10
     cores: 4
     ram: 16384
-    vmid: 3200
-    os: ubuntu20-ansible
+    vmid: 220
+    os: u24-cloud
     boot: started
   worker1:
     name: k3s-worker-1
@@ -66,8 +66,8 @@ nodes:
     macaddr: 7A:00:00:00:01:11
     cores: 4
     ram: 16384
-    vmid: 3201
-    os: ubuntu20-ansible
+    vmid: 221
+    os: u24-cloud
     boot: started
   worker2:
     name: k3s-worker-2
@@ -76,6 +76,6 @@ nodes:
     macaddr: 7A:00:00:00:01:12
     cores: 4
     ram: 16384
-    vmid: 3202
-    os: ubuntu20-ansible
+    vmid: 222
+    os: u24-cloud
     boot: started

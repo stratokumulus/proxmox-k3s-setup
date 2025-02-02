@@ -24,8 +24,8 @@ ${ i.ip } new_hostname=${ i.name }
 [worker:vars]
 nginx_ip=${ nginx.ip }
 
-[mysql]
+[database]
 ${ mysql.ip } new_hostname=${ mysql.name } k3s_username=${ db.user} k3s_database_name=${db.dbname} k3s_db_passwd=${db.password}
 
-[nginx]
+[haproxy]
 ${ nginx.ip } new_hostname=${ nginx.name }

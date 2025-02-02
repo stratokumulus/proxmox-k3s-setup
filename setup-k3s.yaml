@@ -55,8 +55,8 @@
 
     - name: Create remote users
       community.mysql.mysql_user:
-        name: "{{ dbuser }}"
-        password: "{{ dbpwd }}"
+        name: "{{ user }}"
+        password: "{{ pwd }}"
         host: "%"
         priv: "*.*:ALL"
         state: present
@@ -84,6 +84,10 @@
         name: nginx
         state: latest
         update_cache: true
+    - name: Install the nginx stream module
+      apt:
+        name: libnginx-mod-stream
+        state: latest
 
     - name: Create nginx configuration
       copy:
@@ -174,7 +178,7 @@
 # Configuring worker nodes
 ##########################
 - name: Rename hosts
-  hosts: workers
+  hosts: worker
   vars:
     token: "{{ lookup('file','files/node-token') }}"
   become: true

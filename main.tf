@@ -26,18 +26,37 @@ resource "proxmox_vm_qemu" "cloudinit-nodes" {
   tags        = "k3s,${each.value.type}"
   vm_state    = each.value.boot # start once created ?
 
+  # Configure the cloudinit parts ...
+  cicustom   = "vendor=local:snippets/qemu-guest-agent.yml" # /var/lib/vz/snippets/qemu-guest-agent.yml
+  ciupgrade  = true
+  nameserver = local.network.dns
+  ipconfig0  = "ip=dhcp"
+  skip_ipv6  = true
+  ciuser     = "ansible"
+  cipassword = var.ansible_password
+  sshkeys    = var.ansible_public_ssh_key
+
   cores    = each.value.cores
   memory   = each.value.ram
   scsihw   = "virtio-scsi-pci"
   bootdisk = "scsi0"
   hotplug  = 0
-
-  disk {
-    slot    = "scsi0"
-    size    = "120G"
-    type    = "disk"
-    storage = "VM-DATA"
-    #iothread = 1
+  disks {
+    scsi {
+      scsi0 {
+        disk {
+          storage = "vm-data"
+          size    = "120G"
+        }
+      }
+    }
+    ide {
+      ide0 {
+        cloudinit {
+          storage = "vm-data"
+        }
+      }
+    }
   }
   network {
     model   = "virtio"

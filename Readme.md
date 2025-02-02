@@ -2,19 +2,18 @@
 
 Because I can. It's easy to install. It's easy to maintain. It's easy to operate. It's opensource. It forms clusters. So yeah, why not ?
 
-My homelab consist of two Dell R6x0 servers running Proxmox VE 7 (with 192GB RAM each, and plenty of disk space). I have a user with proper rights (```terraform-prov```) that I use to automate VM creation. 
+My homelab consist of several Dell servers running Proxmox VE 8. I have a user with proper rights (```terraform-prov```) that I use to automate VM creation. 
 
 I'm constantly testing new Kubernetes flavors, just to be able to study them, search for some specific feature, ...  but each manual deployment takes time (OpenShift ! I'm looking at you). And I don't want both my hypervisors to be running every day, 24x7, so I need a way to deploy my environments automatically, quickly, along with the deployment of the Kubernetes workload. The second part is fairly easy if the kubeconfig points to the right cluster: a nice `kubectl apply -f` and presto, the workload is installed.
 
 But what about the cluster deployment ?
 
-Enter Terraform.  And enter Ansible. And enter Jenkins (ok, ok, that's a lot entering at once ... let's summarize :)
+Enter Terraform.  And enter Ansible. And enter Helm (ok, ok, that's a lot entering at once ... let's summarize :)
 
 Enter Infrastructure as Code !
 
 ## Architecture
 
-This is what I will deploy (based on Techno Tim setup in [this video](https://www.youtube.com/watch?v=UoOcLXfa8EU) , which is itself based on the [Rancher K3S HA installation doc](https://rancher.com/docs/k3s/latest/en/installation/ha/) ) : 
 
 ![architecture](./k3s-architecture.png)
 

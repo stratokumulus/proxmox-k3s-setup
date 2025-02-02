@@ -1,0 +1,3 @@
+user: k3s
+pwd: k3spassword
+dbname: k3s

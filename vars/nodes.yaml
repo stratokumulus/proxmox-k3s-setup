@@ -1,0 +1,81 @@
+nodes:
+  haproxy:
+    name: k3s-nginx
+    type: load-balancer
+    ip: 192.168.2.156
+    macaddr: 7A:00:00:00:01:20
+    cores: 4
+    ram: 8192
+    vmid: 3000
+    os: ubuntu20-ansible
+    boot: started
+  database:
+    name: k3s-mysql
+    type: database
+    ip: 192.168.2.157
+    macaddr: 7A:00:00:00:01:30
+    cores: 4
+    ram: 8192
+    vmid: 3001
+    os: ubuntu20-ansible
+    boot: started
+  master0:
+    name: k3s-ctrl-0
+    type: master
+    ip: 192.168.2.150
+    macaddr: 7A:00:00:00:01:00
+    cores: 4
+    ram: 16384
+    vmid: 3100
+    os: ubuntu20-ansible
+    boot: started
+  master1:
+    name: k3s-ctrl-1
+    type: master
+    ip: 192.168.2.151
+    macaddr: 7A:00:00:00:01:01
+    cores: 4
+    ram: 16384
+    vmid: 3101
+    os: ubuntu20-ansible
+    boot: started
+  master2:
+    name: k3s-ctrl-2
+    type: master
+    ip: 192.168.2.152
+    macaddr: 7A:00:00:00:01:02
+    cores: 4
+    ram: 16384
+    vmid: 3102
+    os: ubuntu20-ansible
+    boot: started
+  worker0:
+    name: k3s-worker-0
+    type: worker
+    ip: 192.168.2.153
+    macaddr: 7A:00:00:00:01:10
+    cores: 4
+    ram: 16384
+    vmid: 3200
+    os: ubuntu20-ansible
+    boot: started
+  worker1:
+    name: k3s-worker-1
+    type: worker
+    ip: 192.168.2.154
+    macaddr: 7A:00:00:00:01:11
+    cores: 4
+    ram: 16384
+    vmid: 3201
+    os: ubuntu20-ansible
+    boot: started
+  worker2:
+    name: k3s-worker-2
+    type: worker
+    ip: 192.168.2.155
+    macaddr: 7A:00:00:00:01:12
+    cores: 4
+    ram: 16384
+    vmid: 3202
+    os: ubuntu20-ansible
+    boot: started

@@ -1,0 +1,31 @@
+[primary]
+${ primary.ip } new_hostname=${ primary.name }
+
+[secondary]
+%{ for i in secondary ~}
+${ i.ip } new_hostname=${ i.name }
+%{ endfor ~}
+
+[control:children]
+primary
+secondary
+
+[control:vars]
+k3s_username=${ db.user } 
+k3s_database_name=${ db.dbname }
+k3s_passwd=${ db.password }
+nginx_ip=${ nginx.ip }
+
+[worker]
+%{ for i in workers ~}
+${ i.ip } new_hostname=${ i.name }
+%{ endfor ~}
+
+[worker:vars]
+nginx_ip=${ nginx.ip }
+
+[mysql]
+${ mysql.ip } new_hostname=${ mysql.name } k3s_username=${ db.user} k3s_database_name=${db.dbname} k3s_db_passwd=${db.password}
+
+[nginx]
+${ nginx.ip } new_hostname=${ nginx.name }

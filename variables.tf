@@ -11,7 +11,7 @@ variable "user" {
 }
 
 variable "passwd" {
-  description = "Password for the user - defined elsewhere"
+  description = "Password for the Terraform user - defined in the file terraform.tfvars"
   type        = string
   sensitive   = true
 }
